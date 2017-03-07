@@ -2,6 +2,7 @@
 # define FUNCTOR_HPP_
 
 # include <stdexcept>
+# include <utility>
 
 template <typename TRET>
 class Functor;
@@ -16,20 +17,25 @@ class Functor;
     {									\
     public :								\
       virtual ~ICallable() { }						\
-      virtual TRET operator()(TPARAMS) const = 0;		      	\
+      virtual TRET operator()(TPARAMS) = 0;			      	\
     };									\
     									\
     template <typename T>						\
       class CallableObj : public ICallable				\
     {									\
     private :								\
-      T& _callableObj;							\
+      T _callableObj;							\
       									\
     public :								\
-      CallableObj(T& callableObj) : _callableObj(callableObj) { }	\
+      CallableObj(const T& callableObj) : _callableObj(callableObj) { }	\
+									\
+      CallableObj(T&& callableObj) :					\
+	_callableObj(std::move(callableObj))				\
+      { }								\
+									\
       ~CallableObj() { }						\
 									\
-      virtual TRET operator()(TVPARAMS) const			        \
+      virtual TRET operator()(TVPARAMS)					\
       {									\
 	return _callableObj(PARAMS);					\
       }									\
@@ -44,10 +50,8 @@ class Functor;
       FunctionPtr(TRET (*funcPtr)(TPARAMS)) : _funcPtr(funcPtr) { }	\
       ~FunctionPtr() { }						\
 									\
-      virtual TRET operator()(TVPARAMS) const			       	\
+      virtual TRET operator()(TVPARAMS)				       	\
       {									\
-	if (!_funcPtr)							\
-	  throw std::invalid_argument("_funcPtr is null.");		\
 	return (*_funcPtr)(PARAMS);					\
       }									\
     };									\
@@ -57,8 +61,13 @@ class Functor;
     									\
   public :								\
     template <typename T>						\
-      Functor(T& callableObj) :						\
+      Functor(const T& callableObj) :				        \
       _callable(new CallableObj<T>(callableObj))			\
+    { }									\
+									\
+    template <typename T>						\
+      Functor(T&& callableObj) :					\
+      _callable(new CallableObj<T>(std::forward<T>(callableObj)))	\
     { }									\
     									\
     Functor(TRET (*funcPtr)(TVPARAMS)) :				\

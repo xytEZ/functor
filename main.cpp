@@ -90,7 +90,7 @@ int main()
   std::cout << std::endl;
 
 
-  /*Functor<int (int)> functor6 = DividerByThree();
+  Functor<int (int)> functor6 = DividerByThree();
 
   std::cout << "( ( ( ( Functor with DividerByThree struct ) ) ) )"
 	    << std::endl;
@@ -101,26 +101,11 @@ int main()
   DividerByFive dividerByFive;
   Functor<int ()> functor7 =
     std::bind(&DividerByFive::divider, dividerByFive, 25);
-				       
+  
   std::cout << "( ( ( ( Functor with DividerByFive struct ) ) ) )"
 	    << std::endl;
   std::cout << "[Operation : 25 / 5] Value is "
 	    << functor7()
-	    << std::endl;*/
-
-
-  Functor<void (void)> functor8 = nullptr;
-
-  std::cout << "( ( ( ( Null functor ) ) ) )" << std::endl;
-  
-  try
-    {
-      functor8();
-    }
-  catch (const std::invalid_argument& e)
-    {
-      std::cerr << "Exception : " << e.what() << std::endl;
-    }
-  
+	    << std::endl;
   return 1;
 }
